@@ -1,8 +1,6 @@
 package com.wzy.moviemark.model;
 
-import org.springframework.stereotype.Component;
 
-@Component
 public class Movie {
     private String movieid;
     private String title;
