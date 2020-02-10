@@ -1,6 +1,7 @@
 package com.wzy.moviemark.service;
 
 import com.google.gson.Gson;
+import com.wzy.moviemark.config.SessionConfiguration;
 import com.wzy.moviemark.mapper.UserMapper;
 import com.wzy.moviemark.model.User;
 import com.wzy.moviemark.util.Response;
@@ -98,12 +99,34 @@ public class UserService {
             }
 
         }
-
         String jsonResponse = new Gson().toJson(updatedUser);
         return new Response(200, jsonResponse);
 
     }
 
+    public Response login(User loginUser) {
+        User dbUser = null;
+        try {
+            dbUser = userMapper.get(loginUser.getUserName());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new Response(500, e.getMessage());
+        }
+        if (dbUser == null) {
+            return new Response(401, "User not found");
+        }
+        if (!loginUser.getPassword().equals(dbUser.getPassword())) {
+            return new Response(401, "Password Error");
+        }
+        String sessionId = SessionConfiguration.getInstance().addSession(dbUser);
+        System.out.println(SessionConfiguration.getInstance().getSessionMap());
+        return new Response(200, sessionId);
+    }
 
+    public Response logout(String sessionId) {
+        SessionConfiguration.getInstance().removeSession(sessionId);
+        System.out.println(SessionConfiguration.getInstance().getSessionMap());
+        return new Response(200, "Logout Successfully");
+    }
 
 }
